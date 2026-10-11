@@ -1,0 +1,285 @@
+﻿@model Payroll
+
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Payroll Details</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("index","payroll")">Payroll List</a></li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    
+    <form method="post" class="needs-validation" novalidate enctype="multipart/form-data" action="details" id="detailsform">
+        @Html.AntiForgeryToken()       
+        <button class="btn btn-primary" onclick="update('save')">Save</button>
+        <button class="btn btn-danger" onclick="update('delete')" type="button">Delete</button>
+        <a target="_blank" href="@Url.Action("Download","file",new{ fileid = Model.Payrollid,type="payslip"})" class="btn btn-info">Download Pay Slip</a>
+        <input type="button" class="btn btn-danger" onclick="cancel();" value="Cancel" id="btncancel">
+        <hr />
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Staff Name</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <select class="form-select" id="staffidselect">
+                            <option value="">Please Select</option>
+                            @if (Model != null && Model.StaffList != null)
+                            {
+                                @foreach (var item in Model.StaffList)
+                                {
+                                    if (item.Value == Model.Staffid)
+                                    {
+                                        <option value="@item.Value" selected> @item.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Value"> @item.Text</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Pay Period</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="month" class="form-control" id="monthsalary" value="@Model.Monthsalary" required asp-for="Monthsalary">
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Basic Salary (RM)</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="basic" value="@Model.Basic" required asp-for="Basic" readonly>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Commision</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Type" type="text" class="form-control" id="commision" value='@Model.Commission' required asp-for="Commission" onchange="updatededuction(this)">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Employee EPF</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="epf" value="@Model.Epf" required asp-for="Epf" readonly>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Employee EPF Percent</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" id="employeerate" class="form-control" readonly value="@Model.Employeerate" asp-for="Employeerate" />
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Total Salary</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input readonly type="text" id="totalsalary" value="@Model.Totalsalary" asp-for="Totalsalary" class="form-control" />
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Employer EPF Percent</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" id="employerrate" class="form-control" readonly value="@Model.Employerrate" asp-for="Employerrate" />
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Employer EPF</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input readonly type="text" id="employerepf" value="@Model.Employerepf" class="form-control" asp-for="Employerepf" />
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+
+        </div> <!-- row.// -->
+
+        <input asp-for="Payrollid" hidden id="itemid" />
+        <input asp-for="Staffid" hidden id="staffid" />
+        <input asp-for="Id" hidden />
+        <input asp-for="Action" id="action" hidden />
+    </form>
+</div>
+<div class="modal fade" id="statusmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                       @ViewBag.Message
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary waves-effect" onclick>ok</button>*@
+                <a href="@Url.Action("index","payroll")" class="btn btn-primary">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deletemodal" aria-hidden="true" aria-labelledby="delete" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title warning" id="delete">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        Are you sure want to delete?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger waves-effect" onclick="deletepayroll()">Delete</button>
+                <button type="button" class="btn btn-info  waves-effect" onclick="hide()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function update(a) {
+        $("#action").val(a);
+        if(a == "delete"){
+            $("#deletemodal").modal("show");
+        }
+        else
+        {
+            $("#detailsform").submit(function (e) {
+                var isValid = this.checkValidity();
+                if (!isValid && a != "delete") {
+                    return false;
+                };
+            });
+        }
+       
+
+    }
+    function hide(){
+        $("#deletemodal").modal("hide");
+    }
+    function deletepayroll(){
+        var data = {
+            itemid: $("#itemid").val()
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("deletepayroll", "payroll")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    $("#deletemodal").modal("hide");
+                    $("#statusmodal").modal("show");
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    $(document).ready(function () {
+        var itemid = $("#itemid").val();
+        if (itemid != "" && itemid != null) {
+            $("#staffidselect").attr("disabled", true);
+        }
+        $('#staffidselect').change(function () {
+            var selected = $(this).val();
+            $("#staffid").val(selected);
+            getstaffdetails(selected);
+        })
+    });
+    function updatededuction(a) {
+        var commision = parseFloat(a.value);
+        var basic = parseFloat($("#basic").val());
+        var epf = parseFloat($("#employeerate").val());
+        if (commision != null) {
+            var epfdeduct = basic + commision;
+            var currentepfdeduct = epfdeduct * epf / 100;
+            $("#epf").val(currentepfdeduct.toFixed(2));
+            var totalsalary = epfdeduct - currentepfdeduct;
+            $("#totalsalary").val(totalsalary.toFixed(2));
+            var epfemployerper = parseFloat($("#employerrate").val());
+            var epfemployer = epfdeduct * epfemployerper / 100;
+            $("#employerepf").val(epfemployer.toFixed(2))
+        }
+    }
+    function getstaffdetails(a) {
+        var data = {
+            itemid: a,
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("getdetails", "staff")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    $("#basic").val(result.data.basicsalary);
+                    $("#employeerate").val(result.data.employeerate);
+                    $("#employerrate").val(result.data.employerrate);
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    function cancel() {
+        location.href = '@Url.Action("index","payroll")';
+    }
+</script>
+@if (ViewBag.Success == true || ViewBag.Success == false)
+{
+    <script>
+        $(document).ready(function () {
+            $("#statusmodal").modal("show");
+        });
+    </script>
+}

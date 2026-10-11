@@ -1,0 +1,355 @@
+﻿@model Invoice
+
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Invoice Details</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("index","invoice")">Invoice List</a></li>
+                    <li class="breadcrumb-item active">Invoice Details</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form method="post" class="needs-validation" novalidate enctype="multipart/form-data" onsubmit="handleSubmit()" action="SalesDetails" id="saleform">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-primary" onclick="update('save')">Save</button>
+        <button class="btn btn-danger" onclick="update('delete')" @(string.IsNullOrEmpty(Model.Invoiceid) ? "hidden" : "")>Delete</button>
+        <input type="button" class="btn btn-danger" onclick="edit();" value="Edit" id="btnedit" @(string.IsNullOrEmpty(Model.Invoiceid) ? "hidden" : "")>
+        <input type="button" class="btn btn-danger" onclick="cancel();" value="Cancel" id="btncancel">
+        <div>
+            <label class="warning">@ViewBag.Message</label>
+        </div>
+        <hr/>
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Original Receipt Number</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="Salecode" value="@Model.Originalinvoiceno" required asp-for="Originalinvoiceno">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Receipt date</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Type" type="date" class="form-control" value='@Model.Invoicedatestr' required asp-for="Invoicedate">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        @*<partial name="_SaleDetails.cshtml" model="Model.saleslist"/>*@
+        <div class="row gx-2">
+            <div class="col-4">
+                <input type="button" class="btn btn-success" value="Add" onclick="addsales();" />
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Product Code
+                        </th>
+                        <th>
+                            Price (RM)
+                        </th>
+                        <th>
+                            Quantity
+                        </th>
+                        <th>
+                            Discount
+                        </th>
+                        <th>
+                            Total Price (RM)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody class="tableData" data-code="tblsale" id="tblsale">
+                    @if (Model.invoicedetailslist != null)
+                    {
+                        int itemindex = 1;
+                        foreach (var item in Model.invoicedetailslist)
+                        {
+                            <tr id="sale_@itemindex" class="rowData">
+                                <td hidden><input value="@item.Id" data-code="id" asp-for="@item.Id" type="text" /></td>
+                                <td>
+                                    <select class="form-control" data-code="ProductId" asp-for="@item.Productid" onchange="getprice(this)">
+                                        <option value="">Please Select</option>
+                                        @if (Model != null && Model.productlist != null)
+                                        {
+                                            @foreach (var pl in Model.productlist)
+                                            {
+                                                if (item.Productid == pl.Value)
+                                                {
+                                                    <option value="@pl.Value" selected>@pl.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@pl.Value">@pl.Text</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+
+                                </td>
+                                <td>
+                                    <input class="form-control calData colData" value="@item.Price" data-code="Price" data-cal="calData1" placeholder="0.00" asp-for="@item.Price" readonly/>
+                                </td>
+                                <td>
+                                    <input class="form-control calData colData" min ="0" value="@item.Quantity" data-code="Quantity" data-cal="calData2" placeholder="0.00" asp-for="@item.Quantity" />
+                             
+                                </td>
+                                <td>
+                                    <input class="form-control calData colData" min="0" value="@item.Discount" data-code="Discount" data-cal="calData2" placeholder="0.00" asp-for="@item.Discount" />
+                                </td>
+                                <td>
+                                    <input class="form-control totalData" value="@item.Totalprice" data-code="TotalPrice" readonly asp-for="@item.Totalprice" />
+                                </td>
+                                <td><input type="button" onclick="remove_sale(this)" value="Remove" class="btn btn-danger" /></td>
+                                
+                            </tr>
+                            <tr>
+                                <td colspan="7">
+                                    @* <label style="color:red" id="lblquantity">Stock Quantity is less then requested</label> *@
+                                </td>
+                                
+                            </tr>
+                            itemindex++;
+                            
+                        }
+                        
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-12">
+            <input id="txtremark" value="@Model.remarks" asp-for="remarks" class="form-control" placeholder="Remark..."/>
+        </div>
+        <table id="tblsale_template" style="display:none;">
+            <tbody>
+                <tr class="rowData">
+                    <td>
+                        <select class="form-control" data-code="ProductId" name="ProductId" onchange="getprice(this)">
+                            <option value="">Please Select</option>
+                            @if(Model != null && Model.productlist != null)
+                            {
+                                foreach (var item in Model.productlist)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                            
+                        </select>
+
+                    </td>
+                    <td>
+                        <input class="form-control calData colData"  min="0" value="" data-code="Price" data-cal="calData1" placeholder="0.00" name="Price" readonly/>
+                    </td>
+                    <td>
+                        <input class="form-control calData colData"  min="0" value="" data-code="Quantity" data-cal="calData2" placeholder="0.00" name="Quantity" />
+                    </td>
+                    <td>
+                        <input class="form-control calData colData"  min="0" value="" data-code="Discount" data-cal="calData2" placeholder="0.00" name="Discount" />
+                    </td>
+                    <td>
+                        <input class="form-control totalData" value="" data-code="TotalPrice" readonly />
+                    </td>
+                    <td><input type="button" onclick="remove_sale(this)" value="Remove" class="btn btn-danger" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <input asp-for="Invoiceid" hidden id="itemid" />
+        <input asp-for="Id" hidden />
+        <input asp-for="action" id="action" hidden />
+        <input asp-for="invoicesdetailsliststr" id="salesliststring" hidden />
+
+        @*<input type="text" asp-for="pricelist" id="pricelist" hidden />*@
+    </form>
+</div>
+<div class="modal fade" id="statusmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        @ViewBag.Message
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary waves-effect" onclick>ok</button>*@
+                <a href="@Url.Action("invoicedetails","invoice",new {itemid =ViewBag.invoiceid})" class="btn btn-primary">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function update(a) {
+        $("#action").val(a);
+        $("#saleform").submit(function (e) {
+            var isValid = this.checkValidity();
+            if (!isValid && a != "delete") {
+                return false;
+            };
+        });
+
+    }
+    function getprice(a) {
+        var data = {
+            itemid: a.value
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("getproductprice","product")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    var tr = $(a).closest('tr.rowData');
+                    var price = $(tr).find('input.colData[data-code=Price]');
+                    $(price).val(result.data).change();
+                   
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        inittable();
+        var id = $("#itemid").val();
+        if(id !="")
+        {
+            $("input").attr("readonly", true);
+            $("select").attr("disabled", true);
+            $("input.btn").attr("hidden", true);
+            $("#btnedit").attr("hidden", false);
+            $("#btncancel").attr("hidden", false);
+        }
+        
+    })
+    function edit(){
+        $("input").attr("readonly", false);
+        $("select").attr("disabled", false);
+        $("input.btn").attr("hidden", false);
+        $("#btnedit").attr("hidden", true);
+    }
+    function cancel(){
+        location.href = '@Url.Action("index","invoice")';
+    }
+    function calcPrice() {
+        var price = $("#price").val();
+        var quantity = $("#quantity").val();
+        if (price == null)
+            price = 0;
+        if (quantity == null)
+            quantity = 0;
+        var total = price * quantity;
+        $("#totalprice").val(total.take(2));
+    }
+    //add row
+
+    function addsales() {
+        $('#tblsale').append($("#tblsale_template tbody").html());
+        inittable();
+    }
+    function reindex_owner() {
+        var index = 1;
+        $('#tblsale.tableData').find('tr.rowData').each(function () {
+            $($(this).find('input[data-code=Quantity]')[0]).val(i);
+        });
+    }
+    function remove_sale(o) {
+        $(o).closest('tr').remove();
+        reindex_owner();
+    }
+    //function reindex_sale() {
+    //    var index = 1;
+    //    $('#tblsale.tableData').find('tr.rowData').each(function () {
+    //        $($(this).find('span.runningnumber')[0]).text(index++);
+    //    });
+    //}
+    function inittable() {
+        $("tbody.tableData").each(function (i0, k0) {
+
+            $(k0).find('tr.rowData').each(function (i, k) {
+                $(k).find('input.calData').change(function () {
+
+                    var tr = $(this).closest('tr.rowData');
+                    var fieldvalue1 = $(tr).find('input.colData[data-code=Price]');
+                    var fieldvalue2 = $(tr).find('input.colData[data-code=Quantity]');
+                    var fieldvalue3 = $(tr).find('input.colData[data-code=Discount]');
+                    var amount = 0;
+                    amount = fieldvalue1.val() * fieldvalue2.val();
+                    amount = amount - fieldvalue3.val();
+                   
+                    var total1 = $(tr).find('input.totalData');
+                    if (total1 && total1.length == 1) {
+                        $(total1).val(amount.toFixed(2));
+                    }
+                });
+                $(k).find('input.colData').change();
+            });
+        });
+    }
+    function handleSubmit() {
+
+        var myRows = [];
+        $("#tblsale").find("tr").each(function () {
+            var id = $(this).attr('id');
+            var row_index = id;
+
+            var values = {};
+            $(this).find('input,select').each(function () {
+                values[$(this).attr('data-code')] = $(this).val();
+            });
+            myRows.push(values);
+        });
+        // Let's put this in the object like you want and convert to JSON (Note: jQuery will also do this for you on the Ajax request)
+        var myObj = {};
+        //myObj.pricelist = myRows;
+        //alert(JSON.stringify(myObj));
+        $("#salesliststring").val(JSON.stringify(myRows));
+    };
+</script>
+@if (ViewBag.Success == true)
+{
+    <script>
+        $(document).ready(function () {
+            $("#statusmodal").modal("show");
+        });
+    </script>
+}
+@if (ViewBag.Success == false)
+{
+    <script>
+        $(document).ready(function () {
+            $("#lblquantity").removeClass("hidden");
+        });
+    </script>
+}

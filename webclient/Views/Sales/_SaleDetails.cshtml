@@ -1,0 +1,132 @@
+﻿@model List<salesdetails>
+@using webclient.Models
+<div class="row gx-2">
+    <input type="button" class="btn btn-success btn-sm" value="Add" onclick="addsales();" />
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    Product Code
+                </th>
+                <th>
+                    Price (RM)
+                </th>
+                <th>
+                    Quantity
+                </th>
+                <th>
+                    Total Price (RM)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody class="tableData" data-code="tblsale" id="tblsale">
+            @if (Model != null)
+            {
+                int itemindex = 1;
+                foreach (var item in Model)
+                {
+                    <tr id="sale_@itemindex" class="rowData">
+                        <td>
+                            @Html.DisplayFor(x => item.ProductId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.Price)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.Quantity)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.TotalPrice)
+                        </td>
+                        <td><input type="button" onclick="remove_sale(this)" value="Remove" class="btn btn-danger"/></td>
+                    </tr>
+                    @(itemindex++)
+                    ;
+                }
+            }
+        </tbody>
+
+
+    </table>
+</div>
+<table id="tblsale_template" style="display:none;">
+    <tbody>
+        <tr class="rowData">
+            <td>
+                <select class="form-control" data-code="ProductCode">
+                    <option>test</option>
+                </select>
+
+            </td>
+            <td>
+                <input class="form-control calData colData" value="" data-code="Price" data-cal="calData1" placeholder="0.00"/>
+            </td>
+            <td>
+                <input class="form-control calData colData" value="" data-code="Quantity" data-cal="calData2"  placeholder="0.00" name="@Model[0].Quantity"/>
+            </td>
+            <td>
+                <input class="form-control totalData" value="" data-code="TotalPrice" readonly/>
+            </td>
+            <td><input type="button" onclick="remove_sale(this)" value="Remove" class="btn btn-danger"/></td>
+        </tr>
+    </tbody>
+</table>
+<script>
+            function calcPrice(){
+           var price = $("#price").val();
+           var quantity = $("#quantity").val();
+           if(price == null)
+                price =0;
+           if(quantity == null)
+                quantity =0;
+            var total = price * quantity;
+            $("#totalprice").val(total.take(2));
+       }
+       //add row
+
+    function addsales() {
+        $('#tblsale').append($("#tblsale_template tbody").html());
+        inittable();
+    }
+    function reindex_owner() {
+                var index = 1;
+                $('#tblsale.tableData').find('tr.rowData').each(function () {
+                    $($(this).find('input[data-code=Price]')[0]).val(i);
+                     $($(this).find('input[data-code=Quantity]')[0]).val(i);
+                });
+            }
+    function remove_sale(o) {
+                $(o).closest('tr').remove();
+            }
+            //function reindex_sale() {
+            //    var index = 1;
+            //    $('#tblsale.tableData').find('tr.rowData').each(function () {
+            //        $($(this).find('span.runningnumber')[0]).text(index++);
+            //    });
+            //}
+    function inittable(){
+        $("tbody.tableData").each(function (i0, k0) {
+
+        $(k0).find('tr.rowData').each(function (i, k) {
+            $(k).find('input.calData').change(function () {
+
+                var tr = $(this).closest('tr.rowData');
+                var fieldvalue1 = $(tr).find('input.colData[data-code=Price]');
+                var fieldvalue2 = $(tr).find('input.colData[data-code=Quantity]');
+                var amount = 0;
+                amount = fieldvalue1.val() * fieldvalue2.val();
+
+                var total1 = $(tr).find('input.totalData');
+                if (total1 && total1.length == 1) {
+                    $(total1).val(amount.toFixed(2));
+                }
+
+
+            });
+            $(k).find('input.colData').change();
+        });
+    });
+    }
+</script>

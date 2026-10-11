@@ -1,0 +1,334 @@
+﻿@model Product
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Product Details</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("index","product")">Product List</a></li>
+                    <li class="breadcrumb-item active">Product Details</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form method="post" class="needs-validation" novalidate enctype="multipart/form-data" onsubmit="handleSubmit()" id="productform">
+        <button class="btn btn-primary" onclick="update('save')" type="submit">Save</button>
+        <button class="btn btn-danger" onclick="update('delete')" type="button" @(string.IsNullOrEmpty(Model.ProductId) ? "hidden" : "")>Delete</button>
+        <div class="mb-4">
+            <label for="product_code" class="form-label">Product Code</label>
+            <input type="text" placeholder="Type here" class="form-control" id="product_code" value="@Model.ProductCode" required asp-for="ProductCode">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="product_name" class="form-label">Product title</label>
+            <input type="text" placeholder="Type here" class="form-control" id="product_name" value="@Model.Productname" required asp-for="Productname">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Full description</label>
+            <textarea placeholder="Type here" class="form-control" rows="4" asp-for="Productdescription">
+                @Model.Productdescription
+                </textarea>
+
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Product Model</label>
+            <input type="text" placeholder="Type here" class="form-control" id="product_model" value="@Model.ProductModel" required asp-for="ProductModel">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+
+        </div>
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-control" id="catid">
+                    <option value="">Please select</option>
+                    @if (Model != null && Model.productlistcategory != null)
+                    {
+                        @foreach (var item in Model.productlistcategory)
+                        {
+                            if (item.Value == Model.Productcategory)
+                            {
+                                <option value="@item.Value" selected> @item.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Value"> @item.Text</option>
+                            }
+
+                        }
+                    }
+
+                </select>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Sub-category</label>
+                <select class="form-select" id="subcatid">
+                    <option value="">Please Select</option>
+                    @if (Model != null && Model.productlistsubcategory != null)
+                    {
+                        @foreach (var item in Model.productlistsubcategory)
+                        {
+                            if (item.Value == Model.Productsubcategory)
+                            {
+                                <option value="@item.Value" selected> @item.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Value"> @item.Text</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Price (RM)</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Price" type="text" class="form-control" value="@Model.Price" asp-for="Price">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Availabel Stock</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Quantity" type="text" class="form-control" value="@Model.CurrentStock" asp-for="CurrentStock">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Quantity</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Quantity" type="text" class="form-control" value="@Model.Quantity" asp-for="Quantity">
+                    </div>
+                </div>
+            </div>
+        </div> <!-- row.// -->
+        <input asp-for="ProductId" hidden id="ProductId" />
+        <input asp-for="Id" hidden />
+        <input asp-for="action" id="action" hidden />
+        <input type="text" asp-for="productlist" id="productlist" hidden />
+        <input type="text" asp-for="Productcategory" id="productcategory" hidden />
+        <input type="text" asp-for="Productsubcategory" id="productsubcategory" hidden />
+        @* <div class="col-12">
+        <div class="form-group files color">
+        <label>Upload Your File </label>
+        <input type="file" class="form-control" multiple name="files">
+        </div>
+        </div>*@
+    </form>
+    <div style="display:none;">
+        <table id="sample_table">
+            <tr id="">
+                <td class="order">.</td>
+                <td><input type="text" name="producttype" class="form-control" /></td>
+                <td><input type="number" name="price" class="form-control" step="0.01" /></td>
+                <td><input type="number" name="quantity" class="form-control" /></td>
+                <td><input type="number" name="minunit" class="form-control" /></td>
+                <td><input type="number" name="maxunit" class="form-control" /></td>
+                <td><a class="btn btn-xs delete-record" data-id="0" onclick="deleterow(this)"><i class="mdi mdi-delete"></i></a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="statusmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        @ViewBag.Message
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" aria-label="Close" data-bs-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deletemodal" aria-hidden="true" aria-labelledby="delete" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title warning" id="delete">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        Are you sure want to delete?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger waves-effect" onclick="deleteproduct()">Delete</button>
+                <button type="button" class="btn btn-info  waves-effect" onclick="hide()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deletestatusmodal" aria-hidden="true" aria-labelledby="deletestatus" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title warning" id="deletestatus">Info</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        Successful delete
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="@Url.Action("index","product")" class="btn btn-primary">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function update(a) {
+        $("#action").val(a);
+        if (a == "delete") {
+            $("#deletemodal").modal("show");
+            return false;
+        }
+        else {
+            $("#productform").submit(function (e) {
+                var isValid = this.checkValidity();
+                if (!isValid && a != "delete") {
+                    return false;
+                };
+
+
+            });
+        }
+    }
+    function handleSubmit() {
+
+        var myRows = [];
+        $("#tbl_body").find("tr").each(function () {
+            var id = $(this).attr('id');
+            var row_index = id;
+
+            var values = {};
+            $(this).find('input').each(function () {
+                values[$(this).attr('name')] = $(this).val();
+            });
+            myRows.push(values);
+        });
+
+        // Let's put this in the object like you want and convert to JSON (Note: jQuery will also do this for you on the Ajax request)
+        var myObj = {};
+        //myObj.pricelist = myRows;
+        //alert(JSON.stringify(myObj));
+        $("#pricelist").val(JSON.stringify(myRows));
+        var catselected = $("#catid").val();
+        $("#productcategory").val(catselected);
+        var subcatselected = $("#subcatid").val();
+        $("#productsubcategory").val(subcatselected);
+    };
+
+    $(document).ready(function () {
+        $('#catid').change(function () {
+            var selected = $(this).val();
+            getsubcategory(selected);
+        })
+        var id = $("#ProductId").val();
+        if (id != "") {
+            $("#product_code").attr("readonly", true);
+        }
+
+
+    });
+    function getsubcategory(a) {
+        var data = {
+            itemid: a,
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("getsubcategory", "product")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    $("#subcatid").html('');
+                    $("#subcatid").append("<option value='' class='form-control'>Please Select</option>")
+                    for (let i in result.data) {
+                        $("#subcatid").append("<option value='" + result.data[i].value + "'>" + result.data[i].text + "</option>")
+                    }
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    function hide() {
+        $("#deletemodal").modal("hide");
+    }
+    function deleteproduct() {
+        var data = {
+            itemid: $("#ProductId").val()
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("deleteproduct", "product")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    $("#deletemodal").modal("hide");
+                    $("#deletestatusmodal").modal("show");
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+
+</script>
+
+@if (ViewBag.Success == true || ViewBag.Success == false)
+{
+    <script>
+        $(document).ready(function () {
+
+            $("#statusmodal").modal("show");
+        });
+    </script>
+}

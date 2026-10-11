@@ -1,0 +1,65 @@
+﻿@model PagingModel
+
+<nav aria-label="Page navigation">
+    <div class="row">
+        <div class="col-6">
+            Page @Model.PageNumber of @Model.TotalPage
+        </div>
+        <div class="col-6">
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                var page = Model.TotalPage;
+
+            }
+            <ul class="pagination justify-content-end mb-0">
+                <li class="page-item @prevDisabled">
+                    <a asp-action="@Model.Controller"
+                        asp-route-sortOrder="@Model.currentsort"
+                        asp-route-pageNumber="@(Model.PageNumber - 1)"
+                        asp-route-currentFilter="@Model.currentfilter"
+                        class="page-link " tabindex="-1">Previous</a>
+                </li>
+                @{
+                    if (page > 0)
+                    {
+                        int remainer = 2;
+                        int total = 5;
+                        int max = page;
+                        int min = 1;
+                        int pageIndex = Model.PageNumber;
+                        if (max > pageIndex + remainer) { max = pageIndex + remainer; }
+                        if (min < pageIndex - remainer) { min = pageIndex - remainer; }
+
+                        if (max - min < total)
+                        {
+                            while (min > 1 && max - min < total - 1) { min--; }
+                            while (max < page && max - min < total - 1) { max++; }
+                        }
+                        for (var i = min; i <= max; i++)
+                        {
+                            var curPage = Model.PageNumber == i ? "active" : "";
+                            <li class="page-item @curPage">
+                               <a asp-action="@Model.Controller"
+                        asp-route-sortOrder="@Model.currentsort"
+                        asp-route-pageNumber="@i"
+                        asp-route-currentFilter="@Model.currentfilter"
+                                    class="page-link" tabindex="-1">@i</a>
+                            </li>
+                        }
+                    }
+
+                }
+                <li class="page-item  @nextDisabled">
+                   <a asp-action="@Model.Controller"
+                        asp-route-sortOrder="@Model.currentsort"
+                        asp-route-pageNumber="@(Model.PageNumber + 1)"
+                        asp-route-currentFilter="@Model.currentfilter"
+                        class="page-link" tabindex="-1">Next</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+</nav>

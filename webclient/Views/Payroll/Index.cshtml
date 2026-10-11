@@ -1,0 +1,83 @@
+﻿@model PagingResult<Payroll>
+@{
+    ViewData["Title"] = "Staff List";
+}
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Product List</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Index">
+                    <div class="row mb-4">
+                        <label for="horizontal-firstname-input" class="col-md-2 col-form-label">Staff Name :</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="currentFilter" value="@ViewData["currentFilter"]" class="form-control" />
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="submit" class="btn btn-primary w-md">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div>
+                    <a href="@Url.Action("details", "payroll", new { itemid = "" })" class="btn btn-outline-success">Add Payroll</a>
+                </div>
+                <hr />
+                <table id="tblMember" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Payroll Code</th>
+                            <th>
+                                Staff Name
+                            </th>
+                            <th>
+                                Payroll Month
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            if (Model != null && Model.Items != null)
+                            {
+                                int i = 1;
+                                foreach (var item in Model.Items)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <a href="@Url.Action("details","payroll",new{ itemid = item.Payrollid})">@item.Staffname - (@item.Monthsalary)</a>
+
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Staffname)
+                                        </td>
+
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Monthsalary)
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model != null)
+                {
+                    var currentfilter = ViewData["CurrentFilter"] ?? "";
+                    var currentsort = ViewData["CurrentSort"] ?? "";
+                    Model.Result.currentfilter = currentfilter.ToString();
+                    Model.Result.currentsort = currentsort.ToString();
+                    Model.Result.Controller = "Index";
+                    @Html.Partial("_Paging",Model.Result)
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>

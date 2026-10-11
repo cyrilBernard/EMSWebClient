@@ -1,0 +1,206 @@
+﻿@model ProductsCategory
+
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Product Details</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("index","settings")">Product Category List</a></li>
+                    <li class="breadcrumb-item active">Product Category Details</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form method="post" class="needs-validation" novalidate onsubmit="handleSubmit()" asp-action="CategoryDetails" id="categoryform">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-primary" onclick="update('save')">Save</button>
+        <button class="btn btn-danger" onclick="update('delete')">Delete</button>
+        <div class="mb-4">
+            <label for="product_code" class="form-label">Category Code</label>
+            <input type="text" placeholder="Type here" class="form-control" id="Productcode" value="@Model.Productcode" required asp-for="Productcode">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="product_code" class="form-label">Category Name</label>
+            <input type="text" placeholder="Type here" class="form-control" id="Name" value="@Model.Name" required asp-for="Name">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+        </div>
+        @*<div class="mb-4">
+            <label for="product_code" class="form-label">Category Status</label>
+            <input type="text" placeholder="Type here" class="form-control" id="Name" value="@Model.Status" required asp-for="Status">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+        </div>*@
+        <div class="mb-4">
+            <label class="form-label">Category Description</label>
+
+            <input placeholder="Type Here" type="text" class="form-control" required value="@Model.Description" asp-for="Description" id="Description">
+            <div class="invalid-feedback">
+                Required!
+            </div>
+        </div> <!-- row.// -->
+        @*<partial name="_SaleDetails.cshtml" model="Model.saleslist"/>*@
+        <div class="row gx-2">
+            <div class="well clearfix">
+                <input type="button" class="btn btn-success btn-sm" value="Add" onclick="addssub();" />
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>
+                            Sub Code
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody class="tableData" data-code="tblsubcategory" id="tblsubcategory">
+                    @if (Model.productSubCategories != null)
+                    {
+                        int itemindex = 1;
+                        foreach (var item in Model.productSubCategories)
+                        {
+                            var id = "subcat-" + itemindex;
+                            <tr id=@id class="rowData">
+                                <td>@itemindex</td>
+                                <td>
+                                    <input type="text" class="form-control " name="Itemkey" value="@item.Itemkey" />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="Itemtext" value="@item.Itemtext" />
+                                </td>
+                                <td><input type="button" onclick="remove_sale(this)" value="Remove" class="btn btn-danger" /></td>
+                            </tr>
+                            @(itemindex++)
+                            ;
+                        }
+                    }
+                </tbody>
+
+
+            </table>
+        </div>
+        <table id="tblsubcategory_template" style="display:none;">
+            <tbody>
+                <tr class="rowData">
+                    <td></td>
+                    <td>
+                        <input class="form-control" type="text" min="0" name="ItemKey" />
+                    </td>
+                    <td>
+                        <input class="form-control" type="text" name="Itemtext" />
+                    </td>
+                    <td><input type="button" onclick="remove_sub(this)" value="Remove" class="btn btn-danger" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <input asp-for="Productid" hidden />
+        <input asp-for="Id" hidden />
+        <input type="text" asp-for="productsubcatstring" id="productsubcatstring" hidden />
+
+    </form>
+</div>
+<div class="modal fade" id="statusmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        @ViewBag.Message
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary waves-effect" onclick>ok</button>*@
+                <a href="@Url.Action("index","product")" class="btn btn-primary">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function update(a) {
+        $("#action").val(a);
+        $("#categoryform").submit(function (e) {
+            var isValid = this.checkValidity();
+            if (!isValid && a != "delete") {
+                return false;
+            };
+        });
+
+    }
+
+</script>
+<script>
+
+
+    function addssub() {
+        $('#tblsubcategory').append($("#tblsubcategory_template tbody").html());
+        sort();
+    }
+
+    function remove_sub(o) {
+        $(o).closest('tr').remove();
+        sort();
+    }
+
+    function handleSubmit() {
+        var myRows = [];
+        $("#tblsubcategory").find("tr").each(function () {
+            var id = $(this).attr('id');
+            var row_index = id;
+
+            var values = {};
+            $(this).find('input').each(function () {
+                values[$(this).attr('name')] = $(this).val();
+            });
+            myRows.push(values);
+        });
+
+        // Let's put this in the object like you want and convert to JSON (Note: jQuery will also do this for you on the Ajax request)
+        var myObj = {};
+        //myObj.pricelist = myRows;
+        //alert(JSON.stringify(myObj));
+        $("#productsubcatstring").val(JSON.stringify(myRows));
+    };
+    function sort() {
+        var para = $("tbody#tblsubcategory tr").length;//Get the number of tr after tbody deletes a row
+        var j = 0;
+        for (var i = 0; i < para; i++) { //Loop through
+            j = j + 1;
+            //The traversed i is given to the serial number of each line
+            $('tbody#tblsubcategory').find('tr').eq(i).find('td:first').html(j);
+
+        }
+    }
+</script>
+@if (ViewBag.Success == true)
+{
+    <script>
+        $(document).ready(function () {
+            $("#statusmodal").modal("show");
+        });
+    </script>
+}

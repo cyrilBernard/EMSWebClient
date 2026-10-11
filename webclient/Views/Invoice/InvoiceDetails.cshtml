@@ -1,0 +1,574 @@
+﻿@model Invoice
+@{
+    ViewData["Title"] = "Invoice Details";
+    decimal? totalamount = 0;
+}
+
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<style type="text/css">
+
+    /*media (min-width:992px) {
+            .page-container {
+                max-width: 1140px;
+                margin: 0 auto
+            }
+
+            .page-sidenav {
+                display: block !important
+            }
+        }*/
+
+    .padding {
+        padding: 2rem
+    }
+
+    .w-32 {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: .85em
+    }
+
+    .tl-item .avatar {
+        z-index: 2
+    }
+
+    .circle {
+        border-radius: 500px
+    }
+
+    .gd-warning {
+        color: #fff;
+        border: none;
+        background: #f4c414 linear-gradient(45deg, #f4c414, #f45414)
+    }
+
+    .timeline {
+        position: relative;
+        border-color: rgba(160, 175, 185, .15);
+        padding: 0;
+        margin: 0
+    }
+
+    .p-4 {
+        padding: 1.5rem !important
+    }
+
+    .block,
+    .card {
+        background: #fff;
+        border-width: 0;
+        border-radius: .25rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+        margin-bottom: 1.5rem
+    }
+
+    .mb-4,
+    .my-4 {
+        margin-bottom: 1.5rem !important
+    }
+
+    .tl-item {
+        border-radius: 3px;
+        position: relative;
+        display: -ms-flexbox;
+        display: flex
+    }
+
+        .tl-item > * {
+            padding: 10px
+        }
+
+        .tl-item .avatar {
+            z-index: 2
+        }
+
+        .tl-item:last-child .tl-dot:after {
+            display: none
+        }
+
+        .tl-item.active .tl-dot:before {
+            border-color: #448bff;
+            box-shadow: 0 0 0 4px rgba(68, 139, 255, .2)
+        }
+
+        .tl-item:last-child .tl-dot:after {
+            display: none
+        }
+
+        .tl-item.active .tl-dot:before {
+            border-color: #448bff;
+            box-shadow: 0 0 0 4px rgba(68, 139, 255, .2)
+        }
+
+    .tl-dot {
+        position: relative;
+        border-color: rgba(160, 175, 185, .15)
+    }
+
+        .tl-dot:after,
+        .tl-dot:before {
+            content: '';
+            position: absolute;
+            border-color: inherit;
+            border-width: 2px;
+            border-style: solid;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%)
+        }
+
+        .tl-dot:after {
+            width: 0;
+            height: auto;
+            top: 25px;
+            bottom: -15px;
+            border-right-width: 0;
+            border-top-width: 0;
+            border-bottom-width: 0;
+            border-radius: 0
+        }
+
+    tl-item.active .tl-dot:before {
+        border-color: #448bff;
+        box-shadow: 0 0 0 4px rgba(68, 139, 255, .2)
+    }
+
+    .tl-dot {
+        position: relative;
+        border-color: rgba(160, 175, 185, .15)
+    }
+
+        .tl-dot:after,
+        .tl-dot:before {
+            content: '';
+            position: absolute;
+            border-color: inherit;
+            border-width: 2px;
+            border-style: solid;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%)
+        }
+
+        .tl-dot:after {
+            width: 0;
+            height: auto;
+            top: 25px;
+            bottom: -15px;
+            border-right-width: 0;
+            border-top-width: 0;
+            border-bottom-width: 0;
+            border-radius: 0
+        }
+
+    .tl-content p:last-child {
+        margin-bottom: 0
+    }
+
+    .tl-date {
+        font-size: .85em;
+        margin-top: 2px;
+        min-width: 150px;
+        max-width: 150px
+    }
+
+    .avatar {
+        position: relative;
+        line-height: 1;
+        border-radius: 500px;
+        white-space: nowrap;
+        font-weight: 700;
+        border-radius: 100%;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+        border-radius: 500px;
+        box-shadow: 0 5px 10px 0 rgba(50, 50, 50, .15)
+    }
+
+    .b-warning {
+        border-color: #f4c414 !important
+    }
+
+    .b-primary {
+        border-color: #448bff !important
+    }
+
+    .b-danger {
+        border-color: #f54394 !important
+    }
+</style>
+<!-- start page title -->
+@*<div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <h4 class="mb-sm-0 font-size-18">Invoice Detail</h4>
+
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">Invoices</a></li>
+                        <li class="breadcrumb-item active">Invoice Detail</li>
+                    </ol>
+                </div>
+
+            </div>
+        </div>
+    </div>*@
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="d-print-none mt-3" style="padding-left:10px;">
+                <div class="float-start">
+                    @*<a href="javascript:window.print()" class="btn btn-success waves-effect waves-light me-1"><i class="fa fa-print"></i>Print</a>*@
+                    <a href="@Url.Action("index","invoice")" class="btn btn-primary w-md waves-effect waves-light">Back to list</a>
+                    <a href="@Url.Action("salesdetails","sales",new {itemid =Model.Invoiceid})" class="btn btn-primary w-md waves-effect waves-light">Edit</a>
+                    @*<a target="_blank" href="@Url.Action("Download","file",new{ fileid = "d2d4c419-59bb-4de4-b78a-ac742ac3b2d7",type="invoice"})" class="btn btn-info">Download Invoice</a>*@
+                    @*<a href="@Url.Action("ViewFilePdf","files",new { imageid = Model.itemid,type="label" })" class="btn btn-success waves-effect waves-light me-1" target="_blank"><i class="fa fa-print"></i>Print Label</a>*@
+                    <button onclick="window.print()" class="btn btn-info">Print</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <br />
+                <br />
+                <div class="col-12">
+                    <p style="text-align:center">
+                        Ester Music Shop<br />
+                        Lot 3, Ground Floor, Lorong Mutiara Inanam,<br />
+                        Jalan Nountun Batu 6, Jalan Tuaran<br />
+                        88450 Kota Kinabalu
+                    </p>
+                </div>
+                <div class="invoice-title" style="margin-left:15px;">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            @if (!string.IsNullOrEmpty(Model.Customername))
+                            {
+                                <div class="mb-4">
+                                    @*<img src="assets/images/logo-sm.svg" alt="" height="24">*@@*<span class="logo-txt">Minia</span>*@
+                                    <h5 class="font-size-15 mb-3">Customer Name:<input type="text" value="cyril" /></h5>
+                                    <p class="font-size-14 mb-2">@Model.Customername</p>
+                                    <p><i class="mdi mdi-phone align-middle me-1"></i> @Model.Customerphonenumber</p>
+
+                                </div>
+                            }
+
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="mb-4">
+                                Invoice No : @Model.Invoicenumber
+                            </div>
+                            <div class="mb-4">
+                                Date : @Model.Invoicedate?.ToShortDateString()
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                @*<hr class="my-4">*@
+
+               @* <div class="py-2 mt-3">
+                    <h5 class="font-size-15">Invoice Details</h5>
+                </div>*@
+                <div class="p-4">
+                    <div class="table-responsive">
+                        <table class="table table-nowrap align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 70px;">Item.</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Discount</th>
+                                    <th class="text-end" style="width: 120px;">Total Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.invoicedetailslist != null)
+                                {
+                                    var count = 1;
+                                    foreach (var i in Model.invoicedetailslist)
+                                    {
+                                        <tr>
+                                            <th scope="row">@count</th>
+                                            <td>
+                                                @*<h5 class="font-size-15 mb-1">@i.Productdescription</h5>*@
+                                                <p class="font-size-13 text-muted mb-0">@i.Productdescription </p>
+                                            </td>
+                                            <td>@i.Quantity</td>
+                                            <td>RM @webclient.Modules.Utils.ConvertCurrencyToString(i.Price)</td>
+                                            <td>@i.Discount</td>
+                                            <td class="text-end">RM @webclient.Modules.Utils.ConvertCurrencyToString(i.Totalprice)</td>
+                                        </tr>
+                                        count++;
+                                        totalamount = totalamount + i.Totalprice;
+                                    }
+                                }
+
+                                <tr><td class="border-0"><p>@Model.remarks</p></td></tr>
+                                <tr>
+                                    <th scope="row" colspan="5" class="border-0 text-end">Sub Total</th>
+                                    <td class="border-0 text-end"><h5 class="m-0">RM @webclient.Modules.Utils.ConvertCurrencyToString(totalamount)</h5></td>
+                                </tr>
+
+                                <tr>
+                                    <th scope="row" colspan="5" class="border-0 text-end">Total</th>
+                                    <td class="border-0 text-end"><h5 class="m-0">RM @webclient.Modules.Utils.ConvertCurrencyToString(totalamount)</h5></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Second modal dialog -->
+<div class="modal fade" id="secondmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1" style="padding-top:100px;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Update Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="tblsale_template" style="display:none;">
+                    <tbody>
+                        <tr class="rowData">
+                            <td>
+                                <select class="form-control" data-code="ProductId" name="ProductId" onchange="getprice(this)">
+                                    <option value="">Please Select</option>
+                                    @if (Model != null && Model.productlist != null)
+                                    {
+                                        foreach (var item in Model.productlist)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+
+                                </select>
+
+                            </td>
+                            <td>
+                                <input class="form-control calData colData" min="0" value="" data-code="Price" data-cal="calData1" placeholder="0.00" name="Price" readonly />
+                            </td>
+                            <td>
+                                <input class="form-control calData colData" min="0" value="" data-code="Quantity" data-cal="calData2" placeholder="0.00" name="Quantity" />
+                            </td>
+                            <td>
+                                <input class="form-control calData colData" min="0" value="" data-code="Discount" data-cal="calData2" placeholder="0.00" name="Discount" />
+                            </td>
+                            <td>
+                                <input class="form-control totalData" value="" data-code="TotalPrice" readonly />
+                            </td>
+                            <td><input type="button" onclick="remove_sale(this)" value="Remove" class="btn btn-danger" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <!-- Toogle to first dialog, `data-bs-dismiss` attribute can be omitted - clicking on link will close dialog anyway -->
+                <button class="btn btn-primary" onclick="updatepayment('@Model.Invoiceid')">Ok</button>
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="statusmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1" style="padding-top:100px;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Status for Parcel No: <b>INV1234</b> as of <i>@DateTime.Now.ToString("dd MMM yyyy hh:mm tt")</i></p>
+                        <div class="timeline p-4 block mb-4">
+                            <div id="timelineid">
+                            </div>
+                            @*<div class="tl-item active">
+                            <div class="tl-dot b-warning"></div>
+                            <div class="tl-content">
+                            <div class="">twitter thanks for you appreciation and google thanks for you appreciation</div>
+                            <div class="tl-date text-muted mt-1">13 june 18</div>
+                            </div>
+                            </div>
+                            <div class="tl-item">
+                            <div class="tl-dot b-primary"></div>
+                            <div class="tl-content">
+                            <div class="">Do you know how Google search works.</div>
+                            <div class="tl-date text-muted mt-1">45 minutes ago</div>
+                            </div>
+                            </div>
+                            <div class="tl-item">
+                            <div class="tl-dot b-danger"></div>
+                            <div class="tl-content">
+                            <div class="">Thanks to <a href="#" data-abc="true">apple</a>, for iphone 7</div>
+                            <div class="tl-date text-muted mt-1">1 day ago</div>
+                            </div>
+                            </div>
+                            <div class="tl-item">
+                            <div class="tl-dot b-danger"></div>
+                            <div class="tl-content">
+                            <div class="">Order placed <a href="#" data-abc="true">eBay</a> you will get your products</div>
+                            <div class="tl-date text-muted mt-1">1 Week ago</div>
+                            </div>
+                            </div>
+                            <div class="tl-item">
+                            <div class="tl-dot b-warning"></div>
+                            <div class="tl-content">
+                            <div class="">Learn how to use <a href="#" data-abc="true">Google Analytics</a> to discover vital information about your readers.</div>
+                            <div class="tl-date text-muted mt-1">3 days ago</div>
+                            </div>
+                            </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="statusmodal1" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <iframe id="ifrm" height=600 width=700></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#statusmodal").modal("hide");
+    });
+    function showModal() {
+        $("#secondmodal").modal("show");
+    }
+    function getDoc(id, type) {
+        var url = '@Url.Action("ViewFilePdf","files")?imageid=' + id + '&type=' + type;
+        var el = document.getElementById('ifrm');
+        el.src = url;
+        $("#statusmodal1").modal("show");
+    }
+    function updatepayment(a) {
+        var chk = $("#paid").prop('checked');
+        if (chk == false) {
+            alert("please tick checkbox");
+            return false;
+        }
+        var data = {
+            itemid: a,
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("updatepayment", "ws")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    location.reload();
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    function confirmparcel(a) {
+        var con = confirm("Confirm parcel received?");
+        if (con) {
+            var data = {
+                itemid: a,
+            };
+            var val = JSON.stringify(data);
+            $.ajax({
+                url: "@Url.Action("updatestatus", "ws")",
+                data: val,
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    if (result.success) {
+                        location.reload();
+                    }
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+            });
+        }
+
+    }
+    function checkStatus(a) {
+        $("#statusmodal").modal("show");
+        var data = {
+            itemid: a,
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("parcelhistory", "ws")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    var datas = JSON.parse(result.data);
+                    var html = "";
+                    $("#timelineid").html("");
+                    var active = "active";
+                    $(datas.data).each(function (i, item) {
+                        //console.log(item.dateSubmitted);
+                        var items = "<div class='tl-item " + active + "'>"
+                            + "<div class='tl-dot b-warning' ></div >"
+                            + "<div class='tl-content' >"
+                            + "<div>" + item.description + "</div> "
+                            + "<div class='tl-date text-muted mt-2' ><i>" + item.dateSubmitted + "</i></div >"
+                            + "</div>"
+                            + "</div>"
+                        active = "";
+                        $("#timelineid").append(items);
+                    })
+                    $("#statusmodal").modal("show");
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+</script>

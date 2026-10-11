@@ -1,0 +1,319 @@
+﻿@model Staff
+
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Staff Details</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("index","staff")">Staff List</a></li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form method="post" class="needs-validation" novalidate enctype="multipart/form-data" action="Details" id="staffform">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-primary" onclick="update('save')" type="submit">Save</button>
+        <button class="btn btn-danger" onclick="update('delete')" type="button">Delete</button>
+        <input type="button" class="btn btn-danger" onclick="cancel();" value="Cancel" id="btncancel">
+        <hr />
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Staff Code</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="Staffcode" value="@Model.Staffcode" required asp-for="Staffcode">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Staff Name</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Type" type="text" id="Staffname" class="form-control" value='@Model.Staffname' required asp-for="Staffname">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">IC No</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="Icno" value="@Model.Icno" required asp-for="Icno">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Phone Number</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Type" type="text" class="form-control" value='@Model.Phonenumber' required asp-for="Phonenumber">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Email</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="email" class="form-control" id="Email" value="@Model.Email" required asp-for="Email">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Date Join</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="date" class="form-control" id="datejoin" value="@(Model.Datejoin.Value.ToString("yyyy-MM-dd")?? "")" required asp-for="Datejoin">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Basic Salary</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="basicsalary" value="@Model.Basicsalary" required asp-for="Basicsalary">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">EPF Percent</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="epfpercent" value="@Model.Epfpercent" required asp-for="Epfpercent">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Position</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="Staffposition" value="@Model.Staffposition" required asp-for="Staffposition">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label class="form-label">Department</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input placeholder="Type" type="text" class="form-control" value='@Model.Department' required asp-for="Department">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+        </div> <!-- row.// -->
+        <div class="row gx-2">
+            <div class="col-sm-6 mb-3">
+                <label for="product_code" class="form-label">Role</label>
+                <div class="row gx-2">
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="role" value="@Model.Role" required asp-for="Role">
+                        <div class="invalid-feedback">
+                            Required!
+                        </div>
+                    </div>
+                </div> <!-- row.// -->
+            </div>
+            <div class="row gx-2">
+                <div class="col-sm-6 mb-3">
+                    <label for="product_code" class="form-label">Role</label>
+                    <div class="row gx-2">
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="role" value="@Model.Role" required asp-for="Role">
+                            <div class="invalid-feedback">
+                                Required!
+                            </div>
+                        </div>
+                    </div> <!-- row.// -->
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label for="product_code" class="form-label">Role</label>
+                    <div class="row gx-2">
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="role" value="@Model.TempPassword" required asp-for="TempPassword">
+                            <div class="invalid-feedback">
+                                Required!
+                            </div>
+                        </div>
+                    </div> <!-- row.// -->
+                </div>
+            </div> <!-- row.// -->
+            <input asp-for="Staffid" hidden id="itemid" />
+            <input asp-for="Id" hidden />
+            <input asp-for="Action" id="action" hidden />
+        </div>
+    </form>
+</div>
+<div class="modal fade" id="statusmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        @ViewBag.Message
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary waves-effect" onclick>ok</button>*@
+                <a href="@Url.Action("index","staff")" class="btn btn-primary">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deletemodal" aria-hidden="true" aria-labelledby="delete" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title warning" id="delete">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        Are you sure want to delete?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger waves-effect" onclick="deleteproduct()">Delete</button>
+                <button type="button" class="btn btn-info  waves-effect" onclick="hide()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deletestatusmodal" aria-hidden="true" aria-labelledby="deletestatus" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title warning" id="deletestatus">Info</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        Successful delete
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="@Url.Action("index","staff")" class="btn btn-primary">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function update(a) {
+
+        $("#action").val(a);
+        if (a == "delete") {
+            $("#deletemodal").modal("show");
+            return false;
+        }
+        else {
+            $("#staffform").submit(function (e) {
+                //e.preventDefault();
+                var isValid = this.checkValidity();
+                if (!isValid && a != "delete") {
+                    return false;
+                };
+
+            });
+        }
+
+
+    }
+    function cancel() {
+        location.href = '@Url.Action("index","staff")';
+    }
+    function hide() {
+        $("#deletemodal").modal("hide");
+    }
+    function deleteproduct() {
+        var data = {
+            itemid: $("#itemid").val()
+        };
+        var val = JSON.stringify(data);
+        $.ajax({
+            url: "@Url.Action("deletestaff", "staff")",
+            data: val,
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    $("#deletemodal").modal("hide");
+                    $("#deletestatusmodal").modal("show");
+                }
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    $(document).ready(function () {
+        var staffcode = $("#Staffcode").val();
+        if(staffcode != "")
+        {
+            $("#Staffcode").attr("readonly",true);
+        }
+    });
+</script>
+@if (ViewBag.Success == true)
+{
+    <script>
+        $(document).ready(function () {
+            $("#statusmodal").modal("show");
+        });
+    </script>
+}

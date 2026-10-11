@@ -1,0 +1,113 @@
+﻿@model PagingResult<Product>
+@{
+    ViewData["Title"] = "Product List";
+}
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Product List</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Index">
+                    <div class="row mb-4">
+                        <label for="horizontal-firstname-input" class="col-md-2 col-form-label">Product Name :</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="currentFilter" value="@ViewData["currentFilter"]" class="form-control" />
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="submit" class="btn btn-primary w-md">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div>
+                    <a href="@Url.Action("productdetails", "product", new { itemid = "" })" class="btn btn-outline-success">Add Product</a>
+                </div>
+                <hr />
+                <table id="tblMember" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            @*<th>#</th>*@
+                            <th>
+                                Product Code
+                            </th>
+                            <th>
+                                Product Name
+                            </th>
+                          @*  <th>
+                                Category
+                            </th>*@
+                            @*     <th>
+                            Description
+                            </th>*@
+                            <th>
+                                Model
+                            </th>
+                            <th>
+                                Price
+                            </th>
+                            <th>
+                                Quantity
+                            </th>
+                            <th>
+                                Total Price
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            if (Model != null && Model.Items != null)
+                            {
+                                int i = 1;
+                                foreach (var item in Model.Items)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <a href="@Url.Action("productdetails","product",new{ itemid = item.ProductId})">@item.ProductCode</a>
+
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Productname)
+                                        </td>
+             
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ProductModel)
+                                        </td>
+                                        <td>
+                                            RM @webclient.Modules.Utils.ConvertCurrencyToString(item.Price)
+                                        </td>
+                                        <td>
+                                            @item.Quantity.ToString()
+                                        </td>
+                                        <td>
+                                            RM @webclient.Modules.Utils.ConvertCurrencyToString(item.TotalPrice)
+                                            
+                                        </td>
+
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model != null)
+                {
+                    var currentfilter = ViewData["CurrentFilter"] ?? "";
+                    var currentsort = ViewData["CurrentSort"] ?? "";
+                    Model.Result.currentfilter = currentfilter.ToString();
+                    Model.Result.currentsort = currentsort.ToString();
+                    Model.Result.Controller = "Index";
+                    @Html.Partial("_Paging",Model.Result)
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
